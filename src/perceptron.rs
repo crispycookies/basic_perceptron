@@ -41,9 +41,9 @@ impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add
         let mut numeric_prediction = self.m_nodes.get(0).unwrap().get_factor();
 
 
-        for i in 1..self.m_nodes.len(){
-            let node = self.m_nodes.get(i).unwrap();
-            numeric_prediction = numeric_prediction + node.predict(values.get(i-1).unwrap().clone());
+        for i in 0..self.m_nodes.len()-1{
+            let node = self.m_nodes.get(i+1).unwrap();
+            numeric_prediction = numeric_prediction + node.predict(values.get(i).unwrap().clone());
         }
 
         if numeric_prediction > self.m_zero {
@@ -57,18 +57,20 @@ impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add
         }
         for _ in 0..epochs {
             for j in 0..x.len(){
-                let update_chunk_1 = eta * (y.get(j).unwrap().clone());
+
 
                 let f_prediction;
                 if self.predict(x.get(j).unwrap().clone()) {
-                    f_prediction = self.m_lower;
-                }else{
                     f_prediction = self.m_upper;
+                }else{
+                    f_prediction = self.m_lower;
                 }
-                let update = update_chunk_1 - f_prediction;
+
+                let update = eta * (y.get(j).unwrap().clone() - f_prediction);
 
                 for w in 1..self.m_nodes.len(){
-                    self.m_nodes.get_mut(w).unwrap().set_factor(update * *x.get(j).unwrap().get(w-1).unwrap());
+                    let former = self.m_nodes.get_mut(w).unwrap().get_factor();
+                    self.m_nodes.get_mut(w).unwrap().set_factor(former + update * *x.get(j).unwrap().get(w-1).unwrap());
                 }
 
                 self.m_nodes.get_mut(0).unwrap().set_factor(update);

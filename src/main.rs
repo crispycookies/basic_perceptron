@@ -72,10 +72,10 @@ fn main() {
     let pwd = std::env::current_dir().unwrap();
     let pwd_str = pwd.to_str().unwrap();
     println!("{}", pwd_str);
-    let mut perceptron = Perceptron::new(0., 0., -1., 0., 1., 4);
+    let mut perceptron = Perceptron::new(0., 0., 1., -1., 0., 4);
     let x = get_iris_x();
     let y = get_iris_y();
-    perceptron.train(x.clone(), y.clone(), 100, 0.1);
+    perceptron.train(x.clone(), y.clone(), 14, 0.1);
 
     let mut value_1 = std::vec::Vec::new();
     value_1.push(5.0);
