@@ -6,6 +6,8 @@ use crate::node::Node;
 
 pub struct Perceptron<T> {
     m_nodes: std::vec::Vec<Node<T>>,
+    #[allow(dead_code)]
+    //TODO implement later
     m_history: std::vec::Vec<T>,
     m_zero: T,
     m_upper : T,

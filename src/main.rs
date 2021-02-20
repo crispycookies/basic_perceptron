@@ -21,7 +21,7 @@ pub fn get_iris_x() -> Vec<Vec<f64>> {
         for line in lines {
             match line {
                 Ok(ip) => {
-                   let tokens : Vec<&str> = ip.split(", ").collect();
+                    let tokens: Vec<&str> = ip.split(", ").collect();
                     if tokens.len() != 4 {
                         panic!("Invalid Data Format");
                     }
@@ -53,7 +53,7 @@ pub fn get_iris_y() -> Vec<f64> {
                         y.push(-1.);
                     } else if ip.contains("Iris-versicolor") {
                         y.push(1.);
-                    } else{
+                    } else {
                         panic!("File could not be parsed!");
                     }
                 }
@@ -71,12 +71,37 @@ pub fn get_iris_y() -> Vec<f64> {
 fn main() {
     let pwd = std::env::current_dir().unwrap();
     let pwd_str = pwd.to_str().unwrap();
-    print!("{}", pwd_str);
+    println!("{}", pwd_str);
     let mut perceptron = Perceptron::new(0., 0., -1., 0., 1., 4);
     let x = get_iris_x();
     let y = get_iris_y();
-    perceptron.train(x.clone(),y.clone(),100, 1.);
+    perceptron.train(x.clone(), y.clone(), 100, 0.1);
 
+    let mut value_1 = std::vec::Vec::new();
+    value_1.push(5.0);
+    value_1.push(3.3);
+    value_1.push(1.4);
+    value_1.push(0.2);
 
-    println!("Hello, world!");
+    let mut value_2 = std::vec::Vec::new();
+    value_2.push(6.0);
+    value_2.push(2.2);
+    value_2.push(5.0);
+    value_2.push(1.5);
+
+    let pred = perceptron.predict(value_1);
+
+    if pred {
+        println!("Setosa")
+    } else {
+        println!("Versicolor")
+    }
+
+    let pred_2 = perceptron.predict(value_2);
+
+    if pred_2 {
+        println!("Setosa")
+    } else {
+        println!("Versicolor")
+    }
 }
