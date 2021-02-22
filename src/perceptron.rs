@@ -11,18 +11,20 @@ pub struct Perceptron<T> {
     m_history: std::vec::Vec<T>,
     m_zero: T,
     m_upper : T,
-    m_lower : T
+    m_lower : T,
+    m_bias : T
 }
 
 impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add<Output=T> + std::cmp::PartialOrd> Perceptron<T> {
     #[allow(dead_code)]
     pub fn new(def_weight: T, def_history: T, upper: T, lower : T, zero: T, size: usize) -> Self {
         let s = Perceptron {
-            m_nodes: vec![Node::new(def_weight); size+1],
-            m_history: vec![def_history; size+1],
+            m_nodes: vec![Node::new(def_weight); size],
+            m_history: vec![def_history; size],
             m_zero: zero,
             m_upper: upper,
-            m_lower: lower
+            m_lower: lower,
+            m_bias : zero
         };
         return s;
     }
@@ -33,16 +35,17 @@ impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add
             m_history: def_history,
             m_zero: zero,
             m_upper: upper,
-            m_lower: lower
+            m_lower: lower,
+            m_bias : zero
         };
         return s;
     }
     pub fn predict(&mut self, values: std::vec::Vec<T>) -> bool {
-        let mut numeric_prediction = self.m_nodes.get(0).unwrap().get_factor();
+        let mut numeric_prediction = self.m_bias;
 
 
-        for i in 0..self.m_nodes.len()-1{
-            let node = self.m_nodes.get(i+1).unwrap();
+        for i in 0..self.m_nodes.len(){
+            let node = self.m_nodes.get(i).unwrap();
             numeric_prediction = numeric_prediction + node.predict(values.get(i).unwrap().clone());
         }
 
@@ -52,7 +55,7 @@ impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add
         return false;
     }
     pub fn train(&mut self, x: std::vec::Vec<std::vec::Vec<T>>, y: std::vec::Vec<T>, epochs: u64, eta: T) {
-        if x.get(0).unwrap().len() != self.m_nodes.len() -1 {
+        if x.get(0).unwrap().len() != self.m_nodes.len() {
             panic!("Training Data X must match Node count");
         }
         for _ in 0..epochs {
@@ -68,12 +71,12 @@ impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add
 
                 let update = eta * (y.get(j).unwrap().clone() - f_prediction);
 
-                for w in 1..self.m_nodes.len(){
+                for w in 0..self.m_nodes.len(){
                     let former = self.m_nodes.get_mut(w).unwrap().get_factor();
-                    self.m_nodes.get_mut(w).unwrap().set_factor(former + update * *x.get(j).unwrap().get(w-1).unwrap());
+                    self.m_nodes.get_mut(w).unwrap().set_factor(former + update * *x.get(j).unwrap().get(w).unwrap());
                 }
 
-                self.m_nodes.get_mut(0).unwrap().set_factor(update);
+                self.m_bias = update;
             }
         }
     }

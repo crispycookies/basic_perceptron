@@ -69,9 +69,6 @@ pub fn get_iris_y() -> Vec<f64> {
 }
 
 fn main() {
-    let pwd = std::env::current_dir().unwrap();
-    let pwd_str = pwd.to_str().unwrap();
-    println!("{}", pwd_str);
     let mut perceptron = Perceptron::new(0., 0., 1., -1., 0., 4);
     let x = get_iris_x();
     let y = get_iris_y();
@@ -91,7 +88,7 @@ fn main() {
 
     let pred = perceptron.predict(value_1);
 
-    if pred {
+    if !pred {
         println!("Setosa")
     } else {
         println!("Versicolor")
@@ -99,7 +96,7 @@ fn main() {
 
     let pred_2 = perceptron.predict(value_2);
 
-    if pred_2 {
+    if !pred_2 {
         println!("Setosa")
     } else {
         println!("Versicolor")
