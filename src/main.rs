@@ -69,7 +69,7 @@ pub fn get_iris_y() -> Vec<f64> {
 }
 
 fn main() {
-    let mut perceptron = Perceptron::new(0., 0., 1., -1., 0., 4);
+    let mut perceptron = Perceptron::new( 0., 1., -1., 0., 4);
     let x = get_iris_x();
     let y = get_iris_y();
     perceptron.train(x.clone(), y.clone(), 14, 0.1);
