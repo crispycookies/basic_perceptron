@@ -2,6 +2,7 @@ use crate::perceptron::Perceptron;
 
 mod node;
 mod perceptron;
+mod util;
 
 use std::fs::File;
 use std::io::{self, BufRead};
@@ -140,8 +141,13 @@ fn parse_and_run<T>
     println!("ETA {}", eta);
 }
 
+
+
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
+
+
 
     match args.get(0).unwrap().as_str() {
         "f32" => {
