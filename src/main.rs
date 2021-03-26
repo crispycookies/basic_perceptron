@@ -9,6 +9,8 @@ use std::io::{self, BufRead};
 use std::path::Path;
 use std::fmt::Debug;
 use crate::util::Util;
+use std::thread::sleep;
+use std::time::Duration;
 
 // https://doc.rust-lang.org/rust-by-example/std_misc/file/read_lines.html
 // Accessed 20.02.2021, 21:30-22:31
@@ -153,8 +155,13 @@ fn main() {
     util.generate_map();
     util.map_file();
     let x = util.cut(10);
-    let _ = util.split_label_from_data(x.0.clone());
-    let _ = util.shuffle();
+    let y = util.split_label_from_data(x.0.clone());
+    util.shuffle();
+    let z = util.mapped_data;
+
+    print!("{}",z.len());
+    print!("{}",y.0.len());
+
 /*
     match args.get(0).unwrap().as_str() {
         "f32" => {

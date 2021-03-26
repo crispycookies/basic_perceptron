@@ -9,6 +9,7 @@ extern crate rand;
 
 use rand::thread_rng;
 use rand::seq::SliceRandom;
+use std::iter::FromIterator;
 
 
 pub struct Util<T> {
@@ -97,10 +98,8 @@ impl<T: std::str::FromStr> Util<T>
     }
     #[allow(dead_code)]
     pub fn cut(&self, len: usize) -> (Vec<Vec<T>>, Vec<Vec<T>>) {
-        let mut training = Vec::new();
-        let mut validate = Vec::new();
-        training.clone_from_slice(&self.mapped_data[0..len]);
-        validate.clone_from_slice(&self.mapped_data[len..self.mapped_data.len()]);
+        let mut training  = Vec::from_iter(self.mapped_data[0..len].iter().cloned());
+        let mut validate = Vec::from_iter(self.mapped_data[len..self.mapped_data.len()].iter().cloned());
 
         return (training, validate);
     }
@@ -109,8 +108,7 @@ impl<T: std::str::FromStr> Util<T>
         let mut raw_data = Vec::new();
         let mut label = Vec::new();
         for i in data {
-            let mut vec_buff = Vec::new();
-            vec_buff.copy_from_slice(&i[0..self.size]);
+            let mut vec_buff =Vec::from_iter(i[0..self.size].iter().cloned());
             raw_data.push(vec_buff);
 
             label.push(i.get(self.size).unwrap().clone());
