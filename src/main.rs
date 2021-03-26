@@ -79,10 +79,11 @@ fn parse_and_run<T>
     let offset = args.get(5).unwrap().parse::<T>().unwrap();
     let size = args.get(6).unwrap().parse::<usize>().unwrap();
     let data = args.get(7).unwrap().clone();
-    let training_size = args.get(8).unwrap().parse::<usize>().unwrap();
-    let epochs = args.get(9).unwrap().clone().parse::<u64>().unwrap();
-    let eta = args.get(10).unwrap().clone().parse::<T>().unwrap();
-    let o_file = args.get(11).unwrap().clone();
+    let o_file = args.get(8).unwrap().clone();
+    let training_size = args.get(9).unwrap().parse::<usize>().unwrap();
+    let epochs = args.get(10).unwrap().clone().parse::<u64>().unwrap();
+    let eta = args.get(11).unwrap().clone().parse::<T>().unwrap();
+
 
     let mut util = Util::new(size, data, offset, lower);
     let _ = util.read_file();
