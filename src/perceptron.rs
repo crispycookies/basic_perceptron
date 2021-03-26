@@ -35,7 +35,7 @@ impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add
         };
         return s;
     }
-    pub fn predict(&mut self, values: std::vec::Vec<T>) -> bool {
+    pub fn predict(&mut self, values: std::vec::Vec<T>) -> T{
         let mut numeric_prediction = self.m_bias;
 
 
@@ -45,9 +45,9 @@ impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add
         }
 
         if numeric_prediction > self.m_zero {
-            return true;
+            return self.m_upper;
         }
-        return false;
+        return self.m_lower;
     }
     pub fn train(&mut self, x: std::vec::Vec<std::vec::Vec<T>>, y: std::vec::Vec<T>, epochs: u64, eta: T) {
         if x.get(0).unwrap().len() != self.m_nodes.len() {
@@ -57,12 +57,7 @@ impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add
             for j in 0..x.len(){
 
 
-                let f_prediction;
-                if self.predict(x.get(j).unwrap().clone()) {
-                    f_prediction = self.m_upper;
-                }else{
-                    f_prediction = self.m_lower;
-                }
+                let f_prediction= self.predict(x.get(j).unwrap().clone());
 
                 let update = eta * (y.get(j).unwrap().clone() - f_prediction);
 
