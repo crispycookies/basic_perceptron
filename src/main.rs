@@ -8,6 +8,7 @@ use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 use std::fmt::Debug;
+use crate::util::Util;
 
 // https://doc.rust-lang.org/rust-by-example/std_misc/file/read_lines.html
 // Accessed 20.02.2021, 21:30-22:31
@@ -147,8 +148,13 @@ fn parse_and_run<T>
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
+    let mut util = Util::new(4, "data/z.csv".to_string(), 2., -1.);
+    util.read_file();
+    util.generate_map();
+    util.map_file();
 
-
+    let d = util.mapped_data;
+/*
     match args.get(0).unwrap().as_str() {
         "f32" => {
             parse_and_run::<f32>(args.clone());
@@ -175,4 +181,6 @@ fn main() {
             panic!("No viable Type Provided at <1>")
         }
     }
+
+ */
 }

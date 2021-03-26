@@ -4,20 +4,28 @@ use std::io;
 use std::fs::File;
 use std::io::BufRead;
 use std::iter::Map;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
+
+extern crate rand;
+
+use rand::thread_rng;
+use rand::seq::SliceRandom;
+
+
 
 pub struct Util<T> {
     size: usize,
-    mapped_data: Vec<Vec<T>>,
-    labeled_data: Vec<(Vec<T>, String)>,
+    pub mapped_data: Vec<Vec<T>>,
+    pub labeled_data: Vec<(Vec<T>, String)>,
     f_name: String,
-    mapped: BTreeMap<String, T>,
+    pub mapped: HashMap<String, T>,
     offset : T,
-    min_map : T
+    min_map : T,
+    pub shuffled : Vec<Vec<T>>
 }
 
 impl<T: std::str::FromStr> Util<T>
-    where T: Ord + Copy + std::ops::Add<Output = T>
+    where T: Copy + std::ops::Add<Output = T>
 {
     pub fn new(size: usize, f_name: String, offset : T, min_map : T) -> Self
     {
@@ -26,9 +34,10 @@ impl<T: std::str::FromStr> Util<T>
             mapped_data: Vec::new(),
             labeled_data: Vec::new(),
             f_name,
-            mapped: BTreeMap::new(),
+            mapped: HashMap::new(),
+            min_map,
             offset,
-            min_map
+            shuffled: Vec::new()
         };
         return s;
     }
@@ -79,7 +88,14 @@ impl<T: std::str::FromStr> Util<T>
     }
     pub fn map_file(&mut self){
         for i in &self.labeled_data {
-
+            let mut v = i.0.clone();
+            v.push(*self.mapped.get(&*i.1.clone()).unwrap());
+            self.mapped_data.push(v);
         }
+    }
+    pub fn shuffle(&mut self){
+        let mut unshuffled = self.mapped_data.clone();
+        unshuffled.shuffle(&mut thread_rng());
+        self.shuffled = unshuffled;
     }
 }
