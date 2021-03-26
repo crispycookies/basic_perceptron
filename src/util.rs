@@ -3,14 +3,12 @@ use std::path::Path;
 use std::io;
 use std::fs::File;
 use std::io::BufRead;
-use std::iter::Map;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 
 extern crate rand;
 
 use rand::thread_rng;
 use rand::seq::SliceRandom;
-
 
 
 pub struct Util<T> {
@@ -19,15 +17,14 @@ pub struct Util<T> {
     pub labeled_data: Vec<(Vec<T>, String)>,
     f_name: String,
     pub mapped: HashMap<String, T>,
-    offset : T,
-    min_map : T,
-    pub shuffled : Vec<Vec<T>>
+    offset: T,
+    min_map: T,
 }
 
 impl<T: std::str::FromStr> Util<T>
-    where T: Copy + std::ops::Add<Output = T>
+    where T: Copy + std::ops::Add<Output=T>
 {
-    pub fn new(size: usize, f_name: String, offset : T, min_map : T) -> Self
+    pub fn new(size: usize, f_name: String, offset: T, min_map: T) -> Self
     {
         let s = Util {
             size,
@@ -37,7 +34,6 @@ impl<T: std::str::FromStr> Util<T>
             mapped: HashMap::new(),
             min_map,
             offset,
-            shuffled: Vec::new()
         };
         return s;
     }
@@ -77,6 +73,7 @@ impl<T: std::str::FromStr> Util<T>
             panic!("File could not be found or opened");
         };
     }
+    #[allow(dead_code)]
     pub fn generate_map(&mut self) {
         let mut it = self.min_map;
         for i in &self.labeled_data {
@@ -86,16 +83,38 @@ impl<T: std::str::FromStr> Util<T>
             }
         }
     }
-    pub fn map_file(&mut self){
+    #[allow(dead_code)]
+    pub fn map_file(&mut self) {
         for i in &self.labeled_data {
             let mut v = i.0.clone();
             v.push(*self.mapped.get(&*i.1.clone()).unwrap());
             self.mapped_data.push(v);
         }
     }
-    pub fn shuffle(&mut self){
-        let mut unshuffled = self.mapped_data.clone();
-        unshuffled.shuffle(&mut thread_rng());
-        self.shuffled = unshuffled;
+    #[allow(dead_code)]
+    pub fn shuffle(&mut self) {
+        self.mapped_data.shuffle(&mut thread_rng());
+    }
+    #[allow(dead_code)]
+    pub fn cut(&self, len: usize) -> (Vec<Vec<T>>, Vec<Vec<T>>) {
+        let mut training = Vec::new();
+        let mut validate = Vec::new();
+        training.clone_from_slice(&self.mapped_data[0..len]);
+        validate.clone_from_slice(&self.mapped_data[len..self.mapped_data.len()]);
+
+        return (training, validate);
+    }
+    #[allow(dead_code)]
+    pub fn split_label_from_data(&self, data: Vec<Vec<T>>) -> (Vec<Vec<T>>, Vec<T>) {
+        let mut raw_data = Vec::new();
+        let mut label = Vec::new();
+        for i in data {
+            let mut vec_buff = Vec::new();
+            vec_buff.copy_from_slice(&i[0..self.size]);
+            raw_data.push(vec_buff);
+
+            label.push(i.get(self.size).unwrap().clone());
+        }
+        return (raw_data, label);
     }
 }

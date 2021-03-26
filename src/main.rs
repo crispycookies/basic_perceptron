@@ -146,14 +146,15 @@ fn parse_and_run<T>
 
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
+    let _args: Vec<String> = std::env::args().collect();
 
     let mut util = Util::new(4, "data/z.csv".to_string(), 2., -1.);
     util.read_file();
     util.generate_map();
     util.map_file();
-
-    let d = util.mapped_data;
+    let x = util.cut(10);
+    let _ = util.split_label_from_data(x.0.clone());
+    let _ = util.shuffle();
 /*
     match args.get(0).unwrap().as_str() {
         "f32" => {
