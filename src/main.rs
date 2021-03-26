@@ -4,115 +4,68 @@ mod node;
 mod perceptron;
 mod util;
 
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::Path;
+use std::io::Write;
 use std::fmt::Debug;
 use crate::util::Util;
-use std::thread::sleep;
-use std::time::Duration;
+use std::fs::File;
 
-// https://doc.rust-lang.org/rust-by-example/std_misc/file/read_lines.html
-// Accessed 20.02.2021, 21:30-22:31
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-    where P: AsRef<Path>, {
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
-}
-
-pub fn get_train_data<T>(f_name: String, size: usize) -> Vec<Vec<T>>
-    where T: std::str::FromStr, <T as std::str::FromStr>::Err: Debug
-{
-    let mut x = std::vec::Vec::new();
-    if let Ok(lines) = read_lines(f_name.as_str()) {
-        for line in lines {
-            match line {
-                Ok(ip) => {
-                    let tokens: Vec<&str> = ip.split(", ").collect();
-                    if tokens.len() != size {
-                        panic!("Invalid Data Format");
-                    }
-                    let mut v = std::vec::Vec::new();
-
-                    for i in 0..size {
-                        v.push(tokens.get(i).unwrap().to_string().parse::<T>().unwrap());
-                    }
-
-                    x.push(v);
-                }
-                _ => {
-                    panic!("Line could not be read");
-                }
-            }
-        }
-    } else {
-        panic!("File could not be found or opened");
-    };
-    return x;
-}
-
-pub fn get_training_data_labels<T>(f_name: String, label_a: String, label_b: String, lower: T, upper: T) -> Vec<T>
-    where T: std::str::FromStr + Copy, <T as std::str::FromStr>::Err: Debug
-{
-    let mut y = std::vec::Vec::new();
-    if let Ok(lines) = read_lines(f_name.as_str()) {
-        for line in lines {
-            match line {
-                Ok(ip) => {
-                    // Mapper
-                    if ip.contains(label_a.as_str()) {
-                        y.push(lower);
-                    } else if ip.contains(label_b.as_str()) {
-                        y.push(upper);
-                    } else {
-                        panic!("File could not be parsed!");
-                    }
-                }
-                _ => {
-                    panic!("Line could not be read");
-                }
-            }
-        }
-    } else {
-        panic!("File could not be found or opened");
-    };
-    return y;
-}
-
-fn predict<T>
-(def_weight: T, upper: T, lower: T, zero: T, size: usize, prediction_data: String, train_data: String, train_label_data: String, label_a: String, label_b: String, epochs: u64, eta: T) -> Vec<T>
-    where T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add<Output=T> + std::cmp::PartialOrd + std::str::FromStr,
-          <T as std::str::FromStr>::Err: Debug
-
-{
-    let mut perceptron = Perceptron::new(def_weight, upper, lower, zero, size);
-    let x = get_train_data::<T>(train_data, size - 1);
-    let d = get_train_data::<T>(prediction_data, size - 1);
-    let y = get_training_data_labels::<T>(train_label_data, label_a, label_b, lower, upper);
-    perceptron.train(x.clone(), y.clone(), epochs, eta);
-
-    let mut r = Vec::new();
-    for i in d {
-        r.push(perceptron.predict(i));
-    }
-    return r;
-}
-
-
-fn verify<T>(f_name: String, predicted: Vec<T>, label_a: String, label_b: String, upper: T, lower: T) -> (f64, i32, usize)
+fn verify<T>(actual: Vec<T>, predicted: Vec<T>) -> (f64, i32, usize)
     where T: std::str::FromStr + Copy + std::cmp::PartialEq, <T as std::str::FromStr>::Err: Debug
 {
-    let y = get_training_data_labels::<T>(f_name, label_a, label_b, lower, upper);
     let mut counter = 0;
 
-    for i in 0..y.len() {
-        if predicted.get(i).unwrap() != y.get(i).unwrap() {
+    for i in 0..actual.len() {
+        if predicted.get(i).unwrap() != actual.get(i).unwrap() {
             counter = counter + 1;
         }
     }
 
     let accuracy = 1. - (counter as f64 / predicted.len() as f64);
     return (accuracy, counter, predicted.len());
+}
+
+fn store_actual<T>(data: Vec<Vec<T>>, actual: Vec<T>, predicted: Vec<T>, name: String)
+    where T: std::str::FromStr + Copy + std::cmp::PartialEq + std::fmt::Display, <T as std::str::FromStr>::Err: Debug
+{
+    let mut file = File::create(name + ".dat.csv").unwrap();
+
+    for _ in 0..data.get(0).unwrap().len() {
+        file.write(b"property, ").unwrap();
+    }
+    file.write(b"actual, ").unwrap();
+    file.write(b"predicted\n").unwrap();
+
+    for i in 0..data.len() {
+        let c = data.get(i).unwrap();
+        for d in c {
+            let buff = d.to_string() + ", ";
+            file.write(buff.as_bytes()).unwrap();
+        }
+        let buff_actual = actual.get(i).unwrap().to_string() + ",";
+        let buff_predicted = predicted.get(i).unwrap().to_string() + "\n";
+        file.write(buff_actual.as_bytes()).unwrap();
+        file.write(buff_predicted.as_bytes()).unwrap();
+    }
+}
+
+fn store_result<T>(accuracy : f64, errors : i32, count : usize, epochs : u64, eta : T, name :String)
+    where T: std::str::FromStr + Copy + std::cmp::PartialEq + std::fmt::Display, <T as std::str::FromStr>::Err: Debug
+{
+    let mut file = File::create(name + ".res.csv").unwrap();
+
+    file.write(b"Accuracy, Errors, Size, Epochs, ETA\n").unwrap();
+    file.write(accuracy.to_string().as_bytes()).unwrap(); file.write(b", ").unwrap();
+    file.write(errors.to_string().as_bytes()).unwrap(); file.write(b", ").unwrap();
+    file.write(count.to_string().as_bytes()).unwrap(); file.write(b", ").unwrap();
+    file.write(epochs.to_string().as_bytes()).unwrap(); file.write(b", ").unwrap();
+    file.write(eta.to_string().as_bytes()).unwrap(); file.write(b"\n").unwrap();
+
+
+    println!("Accuracy {}", accuracy);
+    println!("Errors {}", errors);
+    println!("Size {}", count);
+    println!("Epochs {}", epochs);
+    println!("ETA {}", eta);
 }
 
 fn parse_and_run<T>
@@ -123,46 +76,39 @@ fn parse_and_run<T>
     let upper = args.get(2).unwrap().parse::<T>().unwrap();
     let lower = args.get(3).unwrap().parse::<T>().unwrap();
     let zero = args.get(4).unwrap().parse::<T>().unwrap();
-    let size = args.get(5).unwrap().parse::<usize>().unwrap();
-    let train = args.get(6).unwrap().clone();
-    let label = args.get(7).unwrap().clone();
-    let label_a = args.get(8).unwrap().clone();
-    let label_b = args.get(9).unwrap().clone();
-    let epochs = args.get(10).unwrap().clone().parse::<u64>().unwrap();
-    let eta = args.get(11).unwrap().clone().parse::<T>().unwrap();
-    let prediction = args.get(12).unwrap().clone();
-    let prediction_label = args.get(13).unwrap().clone();
+    let offset = args.get(5).unwrap().parse::<T>().unwrap();
+    let size = args.get(6).unwrap().parse::<usize>().unwrap();
+    let data = args.get(7).unwrap().clone();
+    let training_size = args.get(8).unwrap().parse::<usize>().unwrap();
+    let epochs = args.get(9).unwrap().clone().parse::<u64>().unwrap();
+    let eta = args.get(10).unwrap().clone().parse::<T>().unwrap();
+    let o_file = args.get(11).unwrap().clone();
 
+    let mut util = Util::new(size, data, offset, lower);
+    let _ = util.read_file();
+    let _ = util.shuffle();
+    let (training, validation) = util.cut(training_size);
+    let (training_data, training_labels) = util.split_label_from_data(training);
+    let (validation_data, validation_labels) = util.split_label_from_data(validation);
 
-    let r = predict(def_weight, upper, lower, zero, size, prediction, train, label, label_a.clone(), label_b.clone(), epochs, eta);
-    let a = verify::<T>(prediction_label, r, label_a.clone(), label_b.clone(), upper, lower);
+    let mut perceptron = Perceptron::new(def_weight, upper, lower, zero, size);
+    let _ = perceptron.train(training_data, training_labels, epochs, eta);
 
-    println!("Accuracy {}", a.0);
-    println!("Errors {}", a.1);
-    println!("Size {}", a.2);
-    println!("Epochs {}", epochs);
-    println!("ETA {}", eta);
+    let mut r = Vec::new();
+    for i in validation_data.clone() {
+        r.push(perceptron.predict(i));
+    }
+
+    let accuracy = verify::<T>(validation_labels.clone(), r.clone());
+    let _ = store_actual(validation_data.clone(), validation_labels.clone(), r.clone(), o_file.clone());
+    let _ = store_result(accuracy.0, accuracy.1, accuracy.2, epochs, eta, o_file.clone());
+
 }
 
 
-
-
 fn main() {
-    let _args: Vec<String> = std::env::args().collect();
+    let args: Vec<String> = std::env::args().collect();
 
-    let mut util = Util::new(4, "data/z.csv".to_string(), 2., -1.);
-    util.read_file();
-    util.generate_map();
-    util.map_file();
-    let x = util.cut(10);
-    let y = util.split_label_from_data(x.0.clone());
-    util.shuffle();
-    let z = util.mapped_data;
-
-    print!("{}",z.len());
-    print!("{}",y.0.len());
-
-/*
     match args.get(0).unwrap().as_str() {
         "f32" => {
             parse_and_run::<f32>(args.clone());
@@ -189,6 +135,4 @@ fn main() {
             panic!("No viable Type Provided at <1>")
         }
     }
-
- */
 }
