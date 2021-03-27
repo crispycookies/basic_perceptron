@@ -90,11 +90,9 @@ fn parse_and_run<T>
     let eta = args.get(11).unwrap().clone().parse::<T>().unwrap();
 
 
-
-
     let mut util = Util::new(size, data, offset, lower);
 
-    match args.get(12){
+    match args.get(12) {
         None => {
             let _ = util.read_file();
         }

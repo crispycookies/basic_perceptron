@@ -34,7 +34,7 @@ impl<T: std::str::FromStr> Util<T>
             f_name,
             mapped: HashMap::new(),
             min_map,
-            offset
+            offset,
         };
         return s;
     }
@@ -74,7 +74,7 @@ impl<T: std::str::FromStr> Util<T>
             panic!("File could not be found or opened");
         };
     }
-    pub fn read_file_with_scaler(&mut self, scaler : f64)
+    pub fn read_file_with_scaler(&mut self, scaler: f64)
         where T: std::str::FromStr, <T as std::str::FromStr>::Err: Debug
     {
         if let Ok(lines) = self.read_lines(self.f_name.as_str()) {
@@ -128,7 +128,7 @@ impl<T: std::str::FromStr> Util<T>
     }
     #[allow(dead_code)]
     pub fn cut(&self, len: usize) -> (Vec<Vec<T>>, Vec<Vec<T>>) {
-        let training  = Vec::from_iter(self.mapped_data[0..len].iter().cloned());
+        let training = Vec::from_iter(self.mapped_data[0..len].iter().cloned());
         let validate = Vec::from_iter(self.mapped_data[len..self.mapped_data.len()].iter().cloned());
 
         return (training, validate);
@@ -138,7 +138,7 @@ impl<T: std::str::FromStr> Util<T>
         let mut raw_data = Vec::new();
         let mut label = Vec::new();
         for i in data {
-            let vec_buff =Vec::from_iter(i[0..self.size].iter().cloned());
+            let vec_buff = Vec::from_iter(i[0..self.size].iter().cloned());
             raw_data.push(vec_buff);
 
             label.push(i.get(self.size).unwrap().clone());
@@ -146,7 +146,7 @@ impl<T: std::str::FromStr> Util<T>
         return (raw_data, label);
     }
     #[allow(dead_code)]
-    pub fn resolve(&self, representation : T) -> String {
+    pub fn resolve(&self, representation: T) -> String {
         let mut buffer = "".to_string();
         for (key, value) in self.mapped.clone() {
             if value == representation {
