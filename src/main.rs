@@ -90,8 +90,19 @@ fn parse_and_run<T>
     let eta = args.get(11).unwrap().clone().parse::<T>().unwrap();
 
 
+
+
     let mut util = Util::new(size, data, offset, lower);
-    let _ = util.read_file();
+
+    match args.get(12){
+        None => {
+            let _ = util.read_file();
+        }
+        Some(e) => {
+            let _ = util.read_file_with_scaler(e.parse::<f64>().unwrap());
+        }
+    }
+
     let _ = util.generate_map();
     let _ = util.map_file();
     let _ = util.shuffle();

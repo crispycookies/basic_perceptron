@@ -34,7 +34,7 @@ impl<T: std::str::FromStr> Util<T>
             f_name,
             mapped: HashMap::new(),
             min_map,
-            offset,
+            offset
         };
         return s;
     }
@@ -61,6 +61,36 @@ impl<T: std::str::FromStr> Util<T>
 
                         for i in 0..self.size {
                             v.push(tokens.get(i).unwrap().to_string().parse::<T>().unwrap());
+                        }
+
+                        self.labeled_data.push((v, tokens.get(self.size).expect("No Label Provided").to_string()));
+                    }
+                    _ => {
+                        panic!("Line could not be read");
+                    }
+                }
+            }
+        } else {
+            panic!("File could not be found or opened");
+        };
+    }
+    pub fn read_file_with_scaler(&mut self, scaler : f64)
+        where T: std::str::FromStr, <T as std::str::FromStr>::Err: Debug
+    {
+        if let Ok(lines) = self.read_lines(self.f_name.as_str()) {
+            for line in lines {
+                match line {
+                    Ok(ip) => {
+                        let tokens: Vec<&str> = ip.split(", ").collect();
+                        if tokens.len() != self.size + 1 {
+                            panic!("Invalid Data Format");
+                        }
+                        let mut v = std::vec::Vec::new();
+
+                        for i in 0..self.size {
+                            let f_data = tokens.get(i).unwrap().to_string().parse::<f64>().unwrap() * scaler;
+                            // Bad way to convert f64 in T, but my patience was limited at this point
+                            v.push(f_data.to_string().parse::<T>().unwrap());
                         }
 
                         self.labeled_data.push((v, tokens.get(self.size).expect("No Label Provided").to_string()));
