@@ -23,7 +23,7 @@ pub struct Util<T> {
 }
 
 impl<T: std::str::FromStr> Util<T>
-    where T: Copy + std::ops::Add<Output=T>
+    where T: Copy + std::ops::Add<Output=T> + std::cmp::PartialEq
 {
     pub fn new(size: usize, f_name: String, offset: T, min_map: T) -> Self
     {
@@ -114,5 +114,15 @@ impl<T: std::str::FromStr> Util<T>
             label.push(i.get(self.size).unwrap().clone());
         }
         return (raw_data, label);
+    }
+    #[allow(dead_code)]
+    pub fn resolve(&self, representation : T) -> String {
+        let mut buffer = "".to_string();
+        for (key, value) in self.mapped.clone() {
+            if value == representation {
+                buffer = key.clone();
+            }
+        }
+        return buffer;
     }
 }

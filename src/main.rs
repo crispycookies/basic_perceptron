@@ -24,8 +24,8 @@ fn verify<T>(actual: Vec<T>, predicted: Vec<T>) -> (f64, i32, usize)
     return (accuracy, counter, predicted.len());
 }
 
-fn store_actual<T>(data: Vec<Vec<T>>, actual: Vec<T>, predicted: Vec<T>, name: String)
-    where T: std::str::FromStr + Copy + std::cmp::PartialEq + std::fmt::Display, <T as std::str::FromStr>::Err: Debug
+fn store_actual<T>(data: Vec<Vec<T>>, actual: Vec<T>, predicted: Vec<T>, name: String, util: Util<T>)
+    where T: std::str::FromStr + Copy + std::cmp::PartialEq + std::fmt::Display + std::ops::Add<Output=T>, <T as std::str::FromStr>::Err: Debug
 {
     let mut file = File::create(name + ".dat.csv").unwrap();
 
@@ -41,24 +41,29 @@ fn store_actual<T>(data: Vec<Vec<T>>, actual: Vec<T>, predicted: Vec<T>, name: S
             let buff = d.to_string() + ", ";
             file.write(buff.as_bytes()).unwrap();
         }
-        let buff_actual = actual.get(i).unwrap().to_string() + ",";
-        let buff_predicted = predicted.get(i).unwrap().to_string() + "\n";
+        let buff_actual = util.resolve(*actual.get(i).unwrap()) + ",";
+        let buff_predicted = util.resolve(*predicted.get(i).unwrap()) + "\n";
         file.write(buff_actual.as_bytes()).unwrap();
         file.write(buff_predicted.as_bytes()).unwrap();
     }
 }
 
-fn store_result<T>(accuracy : f64, errors : i32, count : usize, epochs : u64, eta : T, name :String)
+fn store_result<T>(accuracy: f64, errors: i32, count: usize, epochs: u64, eta: T, name: String)
     where T: std::str::FromStr + Copy + std::cmp::PartialEq + std::fmt::Display, <T as std::str::FromStr>::Err: Debug
 {
     let mut file = File::create(name + ".res.csv").unwrap();
 
     file.write(b"Accuracy, Errors, Size, Epochs, ETA\n").unwrap();
-    file.write(accuracy.to_string().as_bytes()).unwrap(); file.write(b", ").unwrap();
-    file.write(errors.to_string().as_bytes()).unwrap(); file.write(b", ").unwrap();
-    file.write(count.to_string().as_bytes()).unwrap(); file.write(b", ").unwrap();
-    file.write(epochs.to_string().as_bytes()).unwrap(); file.write(b", ").unwrap();
-    file.write(eta.to_string().as_bytes()).unwrap(); file.write(b"\n").unwrap();
+    file.write(accuracy.to_string().as_bytes()).unwrap();
+    file.write(b", ").unwrap();
+    file.write(errors.to_string().as_bytes()).unwrap();
+    file.write(b", ").unwrap();
+    file.write(count.to_string().as_bytes()).unwrap();
+    file.write(b", ").unwrap();
+    file.write(epochs.to_string().as_bytes()).unwrap();
+    file.write(b", ").unwrap();
+    file.write(eta.to_string().as_bytes()).unwrap();
+    file.write(b"\n").unwrap();
 
 
     println!("Accuracy {}", accuracy);
@@ -87,6 +92,8 @@ fn parse_and_run<T>
 
     let mut util = Util::new(size, data, offset, lower);
     let _ = util.read_file();
+    let _ = util.generate_map();
+    let _ = util.map_file();
     let _ = util.shuffle();
     let (training, validation) = util.cut(training_size);
     let (training_data, training_labels) = util.split_label_from_data(training);
@@ -101,14 +108,14 @@ fn parse_and_run<T>
     }
 
     let accuracy = verify::<T>(validation_labels.clone(), r.clone());
-    let _ = store_actual(validation_data.clone(), validation_labels.clone(), r.clone(), o_file.clone());
+    let _ = store_actual(validation_data.clone(), validation_labels.clone(), r.clone(), o_file.clone(), util);
     let _ = store_result(accuracy.0, accuracy.1, accuracy.2, epochs, eta, o_file.clone());
-
 }
 
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
+    let mut args: Vec<String> = std::env::args().collect();
+    args.remove(0);
 
     match args.get(0).unwrap().as_str() {
         "f32" => {
