@@ -75,7 +75,7 @@ fn store_result<T>(accuracy: f64, errors: i32, count: usize, epochs: u64, eta: T
 
 fn parse_and_run<T>
 (args: Vec<String>)
-    where T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add<Output=T> + std::cmp::PartialOrd + std::str::FromStr + std::fmt::Display, <T as std::str::FromStr>::Err: Debug
+    where T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add<Output=T> + std::cmp::PartialOrd + std::str::FromStr + std::fmt::Display + util::convert::Convert, <T as std::str::FromStr>::Err: Debug
 {
     let def_weight = args.get(1).unwrap().parse::<T>().unwrap();
     let upper = args.get(2).unwrap().parse::<T>().unwrap();
