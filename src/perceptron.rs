@@ -1,4 +1,4 @@
-use crate::node::Node;
+use crate::node::{Node, unchecked_ops};
 
 // This is an adapted Version of the Perceptron from:
 // https://riptutorial.com/machine-learning/example/22618/implementing-a-perceptron-model-in-cplusplus
@@ -12,7 +12,7 @@ pub struct Perceptron<T> {
     m_bias : T
 }
 
-impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add<Output=T> + std::cmp::PartialOrd> Perceptron<T> {
+impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add<Output=T> + std::cmp::PartialOrd + unchecked_ops::UncheckedOps> Perceptron<T> {
     #[allow(dead_code)]
     pub fn new(def_weight: T, upper: T, lower : T, zero: T, size: usize) -> Self {
         let s = Perceptron {
