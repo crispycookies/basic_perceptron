@@ -10,7 +10,9 @@ extern crate rand;
 use rand::thread_rng;
 use rand::seq::SliceRandom;
 use std::iter::FromIterator;
+use crate::util::convert::Convert;
 
+pub(crate) mod convert;
 
 pub struct Util<T> {
     size: usize,
@@ -75,7 +77,7 @@ impl<T: std::str::FromStr> Util<T>
         };
     }
     pub fn read_file_with_scaler(&mut self, scaler: f64)
-        where T: std::str::FromStr, <T as std::str::FromStr>::Err: Debug
+        where T: std::str::FromStr + convert::Convert, <T as std::str::FromStr>::Err: Debug
     {
         if let Ok(lines) = self.read_lines(self.f_name.as_str()) {
             for line in lines {
@@ -89,8 +91,9 @@ impl<T: std::str::FromStr> Util<T>
 
                         for i in 0..self.size {
                             let f_data = tokens.get(i).unwrap().to_string().parse::<f64>().unwrap() * scaler;
-                            // Bad way to convert f64 in T, but my patience was limited at this point
-                            v.push(f_data.to_string().parse::<T>().unwrap());
+                            let f : T = Convert::convert(f_data.clone());
+                            v.push(f);
+
                         }
 
                         self.labeled_data.push((v, tokens.get(self.size).expect("No Label Provided").to_string()));

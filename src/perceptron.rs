@@ -1,4 +1,4 @@
-use crate::node::Node;
+use crate::node::{Node, unchecked_ops};
 
 // This is an adapted Version of the Perceptron from:
 // https://riptutorial.com/machine-learning/example/22618/implementing-a-perceptron-model-in-cplusplus
@@ -12,7 +12,7 @@ pub struct Perceptron<T> {
     m_bias : T
 }
 
-impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add<Output=T> + std::cmp::PartialOrd> Perceptron<T> {
+impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add<Output=T> + std::cmp::PartialOrd + unchecked_ops::UncheckedOps> Perceptron<T> {
     #[allow(dead_code)]
     pub fn new(def_weight: T, upper: T, lower : T, zero: T, size: usize) -> Self {
         let s = Perceptron {
@@ -41,7 +41,9 @@ impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add
 
         for i in 0..self.m_nodes.len(){
             let node = self.m_nodes.get(i).unwrap();
-            numeric_prediction = numeric_prediction + node.predict(values.get(i).unwrap().clone());
+            let numeric_add = unchecked_ops::UncheckedOps::add(numeric_prediction, node.predict(values.get(i).unwrap().clone()));
+            //numeric_prediction = numeric_prediction + node.predict(values.get(i).unwrap().clone());
+            numeric_prediction = numeric_add;
         }
 
         if numeric_prediction > self.m_zero {
@@ -59,11 +61,16 @@ impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add
 
                 let f_prediction= self.predict(x.get(j).unwrap().clone());
 
-                let update = eta * (y.get(j).unwrap().clone() - f_prediction);
+                let update_inner = unchecked_ops::UncheckedOps::sub(y.get(j).unwrap().clone(), f_prediction);
+                let update = unchecked_ops::UncheckedOps::mul(eta, update_inner);
+                //let update = eta * (y.get(j).unwrap().clone() - f_prediction);
 
                 for w in 0..self.m_nodes.len(){
                     let former = self.m_nodes.get_mut(w).unwrap().get_factor();
-                    self.m_nodes.get_mut(w).unwrap().set_factor(former + update * *x.get(j).unwrap().get(w).unwrap());
+                    let inner_mul = unchecked_ops::UncheckedOps::mul(update, *x.get(j).unwrap().get(w).unwrap());
+                    let outer_add = unchecked_ops::UncheckedOps::add(former, inner_mul);
+                    //self.m_nodes.get_mut(w).unwrap().set_factor(former + update * *x.get(j).unwrap().get(w).unwrap());
+                    self.m_nodes.get_mut(w).unwrap().set_factor(outer_add);
                 }
 
                 self.m_bias = update;
