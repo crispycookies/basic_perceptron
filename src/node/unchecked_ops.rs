@@ -1,8 +1,9 @@
-use num_traits::{WrappingMul, WrappingSub};
+use num_traits::{WrappingMul, WrappingSub, WrappingAdd};
 
 pub trait UncheckedOps {
     fn mul(a: Self, b: Self) -> Self;
     fn sub(a: Self, b: Self) -> Self;
+    fn add(a: Self, b: Self) -> Self;
 }
 
 impl UncheckedOps for u8 {
@@ -13,6 +14,10 @@ impl UncheckedOps for u8 {
     fn sub(a: Self, b: Self) -> Self {
         return WrappingSub::wrapping_sub(&a, &b);
     }
+
+    fn add(a: Self, b: Self) -> Self {
+        return WrappingAdd::wrapping_add(&a, &b);
+    }
 }
 
 impl UncheckedOps for u16 {
@@ -21,6 +26,9 @@ impl UncheckedOps for u16 {
     }
     fn sub(a: Self, b: Self) -> Self {
         return WrappingSub::wrapping_sub(&a, &b);
+    }
+    fn add(a: Self, b: Self) -> Self {
+        return WrappingAdd::wrapping_add(&a, &b);
     }
 }
 
@@ -31,6 +39,9 @@ impl UncheckedOps for u32 {
     fn sub(a: Self, b: Self) -> Self {
         return WrappingSub::wrapping_sub(&a, &b);
     }
+    fn add(a: Self, b: Self) -> Self {
+        return WrappingAdd::wrapping_add(&a, &b);
+    }
 }
 
 impl UncheckedOps for u64 {
@@ -39,6 +50,9 @@ impl UncheckedOps for u64 {
     }
     fn sub(a: Self, b: Self) -> Self {
         return WrappingSub::wrapping_sub(&a, &b);
+    }
+    fn add(a: Self, b: Self) -> Self {
+        return WrappingAdd::wrapping_add(&a, &b);
     }
 }
 
@@ -49,6 +63,9 @@ impl UncheckedOps for u128 {
     fn sub(a: Self, b: Self) -> Self {
         return WrappingSub::wrapping_sub(&a, &b);
     }
+    fn add(a: Self, b: Self) -> Self {
+        return WrappingAdd::wrapping_add(&a, &b);
+    }
 }
 
 impl UncheckedOps for f64 {
@@ -56,7 +73,10 @@ impl UncheckedOps for f64 {
         return a * b;
     }
     fn sub(a: Self, b: Self) -> Self {
-        return a-b;
+        return a - b;
+    }
+    fn add(a: Self, b: Self) -> Self {
+        return a + b;
     }
 }
 
@@ -65,6 +85,9 @@ impl UncheckedOps for f32 {
         return a * b;
     }
     fn sub(a: Self, b: Self) -> Self {
-        return a-b;
+        return a - b;
+    }
+    fn add(a: Self, b: Self) -> Self {
+        return a + b;
     }
 }
