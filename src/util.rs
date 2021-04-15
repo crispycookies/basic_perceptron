@@ -55,7 +55,7 @@ impl<T: std::str::FromStr> Util<T>
             for line in lines {
                 match line {
                     Ok(ip) => {
-                        let tokens: Vec<&str> = ip.split(", ").collect();
+                        let tokens: Vec<&str> = ip.split(",").collect();
                         if tokens.len() != self.size + 1 {
                             panic!("Invalid Data Format");
                         }
