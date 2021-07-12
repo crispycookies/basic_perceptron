@@ -134,20 +134,20 @@ fn main() {
         "f64" => {
             parse_and_run::<f64>(args.clone());
         }
-        "u8" => {
-            parse_and_run::<u8>(args.clone());
+        "i8" => {
+            parse_and_run::<i8>(args.clone());
         }
-        "u16" => {
-            parse_and_run::<u16>(args.clone());
+        "i16" => {
+            parse_and_run::<i16>(args.clone());
         }
-        "u32" => {
-            parse_and_run::<u32>(args.clone());
+        "i32" => {
+            parse_and_run::<i32>(args.clone());
         }
-        "u64" => {
-            parse_and_run::<u64>(args.clone());
+        "i64" => {
+            parse_and_run::<i64>(args.clone());
         }
         "u128" => {
-            parse_and_run::<u128>(args.clone());
+            parse_and_run::<i128>(args.clone());
         }
         &_ => {
             panic!("No viable Type Provided at <1>")
