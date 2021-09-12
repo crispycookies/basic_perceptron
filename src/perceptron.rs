@@ -63,13 +63,11 @@ impl<T: Copy + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Add
 
                 let update_inner = unchecked_ops::UncheckedOps::sub(y.get(j).unwrap().clone(), f_prediction);
                 let update = unchecked_ops::UncheckedOps::mul(eta, update_inner);
-                //let update = eta * (y.get(j).unwrap().clone() - f_prediction);
 
                 for w in 0..self.m_nodes.len(){
                     let former = self.m_nodes.get_mut(w).unwrap().get_factor();
                     let inner_mul = unchecked_ops::UncheckedOps::mul(update, *x.get(j).unwrap().get(w).unwrap());
                     let outer_add = unchecked_ops::UncheckedOps::add(former, inner_mul);
-                    //self.m_nodes.get_mut(w).unwrap().set_factor(former + update * *x.get(j).unwrap().get(w).unwrap());
                     self.m_nodes.get_mut(w).unwrap().set_factor(outer_add);
                 }
 
