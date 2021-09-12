@@ -31,15 +31,15 @@ fn store_actual<T>(data: Vec<Vec<T>>, actual: Vec<T>, predicted: Vec<T>, name: S
     let mut file = File::create(name + ".dat.csv").unwrap();
 
     for _ in 0..data.get(0).unwrap().len() {
-        file.write(b"property, ").unwrap();
+        file.write(b"property,").unwrap();
     }
-    file.write(b"actual, ").unwrap();
+    file.write(b"actual,").unwrap();
     file.write(b"predicted\n").unwrap();
 
     for i in 0..data.len() {
         let c = data.get(i).unwrap();
         for d in c {
-            let buff = d.to_string() + ", ";
+            let buff = d.to_string() + ",";
             file.write(buff.as_bytes()).unwrap();
         }
         let buff_actual = util.resolve(*actual.get(i).unwrap()) + ",";
@@ -54,15 +54,15 @@ fn store_result<T>(accuracy: f64, errors: i32, count: usize, epochs: u64, eta: T
 {
     let mut file = File::create(name + ".res.csv").unwrap();
 
-    file.write(b"Accuracy, Errors, Size, Epochs, ETA\n").unwrap();
+    file.write(b"Accuracy,Errors,Size,Epochs,ETA\n").unwrap();
     file.write(accuracy.to_string().as_bytes()).unwrap();
-    file.write(b", ").unwrap();
+    file.write(b",").unwrap();
     file.write(errors.to_string().as_bytes()).unwrap();
-    file.write(b", ").unwrap();
+    file.write(b",").unwrap();
     file.write(count.to_string().as_bytes()).unwrap();
-    file.write(b", ").unwrap();
+    file.write(b",").unwrap();
     file.write(epochs.to_string().as_bytes()).unwrap();
-    file.write(b", ").unwrap();
+    file.write(b",").unwrap();
     file.write(eta.to_string().as_bytes()).unwrap();
     file.write(b"\n").unwrap();
 
@@ -134,20 +134,20 @@ fn main() {
         "f64" => {
             parse_and_run::<f64>(args.clone());
         }
-        "u8" => {
-            parse_and_run::<u8>(args.clone());
+        "i8" => {
+            parse_and_run::<i8>(args.clone());
         }
-        "u16" => {
-            parse_and_run::<u16>(args.clone());
+        "i16" => {
+            parse_and_run::<i16>(args.clone());
         }
-        "u32" => {
-            parse_and_run::<u32>(args.clone());
+        "i32" => {
+            parse_and_run::<i32>(args.clone());
         }
-        "u64" => {
-            parse_and_run::<u64>(args.clone());
+        "i64" => {
+            parse_and_run::<i64>(args.clone());
         }
         "u128" => {
-            parse_and_run::<u128>(args.clone());
+            parse_and_run::<i128>(args.clone());
         }
         &_ => {
             panic!("No viable Type Provided at <1>")
